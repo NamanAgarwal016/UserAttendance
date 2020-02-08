@@ -38,32 +38,41 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
+                EditText editText = (EditText) findViewById(R.id.event_name);
+                final String eventName = editText.getText().toString();
+
                 EditText text = (EditText) findViewById(R.id.enter_otp);
                 final String valueEntered = text.getText().toString();
 
-                rootRef.child("CodingEvent").child("CoordOTP").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String valueRecieved = dataSnapshot.getValue(String.class);
+                if(rootRef.child(eventName) == null){
+                    TextView textView = (TextView) findViewById(R.id.final_msg);
+                    textView.setText("No Such Event Exist");
+                }
+                else {
+                    rootRef.child(eventName).child("CoordOTP").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String valueRecieved = dataSnapshot.getValue(String.class);
 
-                        if (valueEntered.equals(valueRecieved)) {
-                            TextView textView1 = (TextView) findViewById(R.id.final_msg);
-                            textView1.setText("Attendance Marked Successfully");
-                            rootRef.child("CodingEvent").child(android_id).setValue(android_id);
-                        } else {
-                            TextView textView2 = (TextView) findViewById(R.id.final_msg);
-                            textView2.setText("Incorrect OTP");
-                            EditText text = (EditText) findViewById(R.id.enter_otp);
-                            text.setText("");
+                            if (valueEntered.equals(valueRecieved)) {
+                                TextView textView1 = (TextView) findViewById(R.id.final_msg);
+                                textView1.setText("Attendance Marked Successfully");
+                                rootRef.child(eventName).child(android_id).setValue(android_id);
+                            } else {
+                                TextView textView2 = (TextView) findViewById(R.id.final_msg);
+                                textView2.setText("Incorrect OTP or Event Name");
+                                EditText text = (EditText) findViewById(R.id.enter_otp);
+                                text.setText("");
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(MainActivity.this, "Failed to read value.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(MainActivity.this, "Failed to read value.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
 
 
             }
